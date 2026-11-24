@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 
 <img src="doc/images/主页.png" width="360" style="max-width: 100%; height: auto;" alt="Manga Translator UI 主界面">
@@ -291,3 +292,6 @@ uv run --no-sync python -m manga_translator --help
 - 若你将本项目用于团队或组织环境，应自行完成权限管理、日志审计、内容审核与合规评估，并建立必要的人工复核流程。
 
 请在使用前审慎评估风险；继续使用即视为你已阅读、理解并同意上述声明。
+=======
+# computer-vision-project
+>>>>>>> 925873467282a0b15a7963e99d5218cd671e343f
