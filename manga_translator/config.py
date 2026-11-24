@@ -94,6 +94,7 @@ class Detector(str, Enum):
     craft = "craft"
     # paddle = "paddle"  # 已移除（需要 rusty_manga_image_translator）
     none = "none"
+    yolo_custom = 'yolo_custom'
 
 class Inpainter(str, Enum):
     default = "default"
@@ -202,7 +203,7 @@ class RenderConfig(BaseModel):
     font_size: Optional[int] = None
     """Override the automatic base font size before offset, ratio, and min/max limits."""
     rtl: bool = True
-    """Right-to-left reading order for panel and text_region sorting,"""  
+    """Right-to-left reading order for panel and text_region sorting,"""
     layout_mode: str = 'smart_scaling'
     """The layout mode to use for rendering. Options: 'smart_scaling', 'strict', 'balloon_fill'"""
     balloon_fill_mask_layout: bool = False
@@ -243,7 +244,7 @@ class RenderConfig(BaseModel):
     def font_color_bg(self):
         if self.font_color and not self._font_color_bg:
             colors = self.font_color.split(':')
-            try:              
+            try:
                 self._font_color_fg = hex2rgb(colors[0]) if colors[0] else None
                 self._font_color_bg = hex2rgb(colors[1]) if len(colors) > 1 and colors[1] else None
             except Exception:
@@ -283,10 +284,10 @@ class TranslatorConfig(BaseModel):
     remove_trailing_period: bool = False
     """Remove a sentence-final period from the translation when the source text has no terminal punctuation."""
     translator_chain: Optional[str] = None
-    """Output of one translator goes in another. Example: --translator-chain "openai:JPN;gemini:ENG"."""    
+    """Output of one translator goes in another. Example: --translator-chain "openai:JPN;gemini:ENG"."""
     selective_translation: Optional[str] = None
     """Select a translator based on detected language in image. Note the first translation service acts as default if the language isn\'t defined. Example: --translator-chain "openai:JPN;gemini:ENG".'"""
-    
+
     # 用户级 API Key（用于 Web 服务器多用户场景）
     # 这些字段优先于环境变量，允许每个用户使用自己的 API Key
     user_api_key: Optional[str] = None
@@ -295,11 +296,11 @@ class TranslatorConfig(BaseModel):
     """User-provided API base URL (overrides environment variable)"""
     user_api_model: Optional[str] = None
     """User-provided model name (overrides environment variable)"""
-    
+
     # API请求频率限制配置
     max_requests_per_minute: int = 0
     """Maximum API requests per minute. 0 means no limit."""
-    
+
     # 简繁体转换（翻译后处理）
     convert_to_traditional: bool = False
     """Convert simplified Chinese to traditional Chinese after translation (using OpenCC s2twp)"""
@@ -313,9 +314,9 @@ class TranslatorConfig(BaseModel):
     """Maximum retry attempts for failed translation validation"""
     post_check_repetition_threshold: int = 20
     """Minimum number of consecutive repetitions to trigger hallucination detection"""
-    post_check_target_lang_threshold: float = 0.5  
+    post_check_target_lang_threshold: float = 0.5
     """Minimum ratio of target language in translation text for ratio check"""
-    
+
     # 使用 PrivateAttr 确保每个实例有独立的缓存
     _translator_gen: Any = PrivateAttr(default=None)
 

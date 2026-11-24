@@ -1,0 +1,94 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 8,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        494,
+        227,
+        593,
+        340
+      ],
+      "confidence": 0.933,
+      "text": ""
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        339,
+        190,
+        427,
+        291
+      ],
+      "confidence": 0.9301,
+      "text": ""
+    },
+    {
+      "reading_order": 3,
+      "bbox": [
+        265,
+        226,
+        360,
+        331
+      ],
+      "confidence": 0.93,
+      "text": ""
+    },
+    {
+      "reading_order": 4,
+      "bbox": [
+        476,
+        397,
+        594,
+        508
+      ],
+      "confidence": 0.9451,
+      "text": "ョ"
+    },
+    {
+      "reading_order": 5,
+      "bbox": [
+        420,
+        478,
+        534,
+        602
+      ],
+      "confidence": 0.9431,
+      "text": "目"
+    },
+    {
+      "reading_order": 6,
+      "bbox": [
+        253,
+        471,
+        322,
+        553
+      ],
+      "confidence": 0.919,
+      "text": ""
+    },
+    {
+      "reading_order": 7,
+      "bbox": [
+        208,
+        490,
+        269,
+        568
+      ],
+      "confidence": 0.9336,
+      "text": ""
+    },
+    {
+      "reading_order": 8,
+      "bbox": [
+        67,
+        514,
+        152,
+        613
+      ],
+      "confidence": 0.9508,
+      "text": ""
+    }
+  ]
+}

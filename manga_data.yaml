@@ -1,0 +1,6 @@
+path: ./manga_det_dataset
+train: train/images
+val: valid/images
+
+nc: 4
+names: ['text-black-bubble', 'text-black-free', 'text-white-bubble', 'text-white-free']

@@ -1,0 +1,61 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 5,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        232,
+        8,
+        372,
+        154
+      ],
+      "confidence": 0.9349,
+      "text": "9"
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        414,
+        139,
+        512,
+        237
+      ],
+      "confidence": 0.9372,
+      "text": ""
+    },
+    {
+      "reading_order": 3,
+      "bbox": [
+        112,
+        409,
+        256,
+        553
+      ],
+      "confidence": 0.9358,
+      "text": ""
+    },
+    {
+      "reading_order": 4,
+      "bbox": [
+        367,
+        529,
+        438,
+        615
+      ],
+      "confidence": 0.9346,
+      "text": "来たも"
+    },
+    {
+      "reading_order": 5,
+      "bbox": [
+        10,
+        457,
+        161,
+        635
+      ],
+      "confidence": 0.9383,
+      "text": ""
+    }
+  ]
+}

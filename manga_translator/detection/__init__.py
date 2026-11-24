@@ -20,7 +20,7 @@ from .default import DefaultDetector
 # from .paddle_rust import PaddleDetector  # 已移除
 from .none import NoneDetector
 from .yolo_obb import YOLOOBBDetector
-
+from .yolo_custom import CustomYOLODetector
 DETECTORS = {
     Detector.default: DefaultDetector,
     Detector.dbconvnext: DBConvNextDetector,
@@ -28,6 +28,7 @@ DETECTORS = {
     Detector.craft: CRAFTDetector,
     # Detector.paddle: PaddleDetector,  # 已移除
     Detector.none: NoneDetector,
+    Detector.yolo_custom: CustomYOLODetector,
 }
 detector_cache = {}
 
@@ -52,7 +53,7 @@ async def dispatch(detector_key: Detector, image: np.ndarray, detect_size: int, 
                    bubble_mask: Optional[np.ndarray] = None):
     """
     检测调度函数，支持混合检测模式
-    
+
     Args:
         use_yolo_obb: 是否启用YOLO OBB辅助检测器
         use_sfx_filter: 是否过滤既未被 other 包裹、也未与 YOLO 文本框重叠的主检测框
@@ -77,23 +78,23 @@ async def dispatch(detector_key: Detector, image: np.ndarray, detect_size: int, 
         result_path_fn,
         det_rearrange_min_effective_short_side,
     )
-    
+
     # 如果不启用YOLO OBB，直接返回主检测器结果
     if not use_yolo_obb:
         return main_textlines, mask, raw_image
-    
+
     # YOLO OBB辅助检测
     try:
         yolo_detector = get_detector_instance('yolo_obb', YOLOOBBDetector)
         await yolo_detector.load(device)
-        
+
         # YOLO OBB检测（使用yolo_obb_conf作为text_threshold）
         yolo_textlines, _, _ = await yolo_detector.detect(
             image, detect_size, yolo_obb_conf, box_threshold, unclip_ratio,
             verbose, min_box_area_ratio, result_path_fn,
             det_rearrange_min_effective_short_side,
         )
-        
+
         # 智能合并：YOLO框可以替换过小的主检测器框，或添加新框
         combined_textlines = merge_detection_boxes(
             yolo_textlines,
@@ -104,18 +105,18 @@ async def dispatch(detector_key: Detector, image: np.ndarray, detect_size: int, 
             image=image,
             bubble_mask=bubble_mask,
         )
-        
+
         replaced_count = len(main_textlines) + len(yolo_textlines) - len(combined_textlines)
         detector.logger.info(f"Hybrid detection: primary detector={len(main_textlines)}, YOLO OBB={len(yolo_textlines)}, replaced/removed={replaced_count}, total={len(combined_textlines)}")
-        
+
         # 生成调试图片（如果verbose=True）
         debug_img = None
         if verbose:
             debug_img = draw_detection_debug_image(image, main_textlines, yolo_textlines, yolo_obb_overlap_threshold)
             detector.logger.info("Hybrid detection debug image generated")
-        
+
         return combined_textlines, mask, debug_img if debug_img is not None else raw_image
-    
+
     except Exception as e:
         detector.logger.error(f"YOLO OBB auxiliary detection failed: {e}")
         # 失败时返回主检测器结果
@@ -357,7 +358,7 @@ def merge_detection_boxes(
     5. 则删除被包含的主检测器框，使用YOLO框替代
     6. 其他情况：如果重叠率 >= overlap_threshold，删除重叠的YOLO框，保留主检测器框
     7. 不重叠或重叠率 < overlap_threshold 的YOLO框直接添加
-    
+
     Args:
         yolo_boxes: YOLO OBB检测器的检测框
         main_boxes: 主检测器的检测框
@@ -365,16 +366,16 @@ def merge_detection_boxes(
         use_sfx_filter: 过滤既未被 YOLO other 框包裹、也未与其他 YOLO 框达到重叠阈值的主检测框。
         image: 原图，供 MangaLens 气泡掩码判断未获 YOLO 支持的主框；模型失败时不做气泡豁免。
         sfx_filter_include_bubble_text: 让气泡内文本也参与拟声词过滤。
-    
+
     Returns:
         合并后的检测框列表
     """
     if len(main_boxes) == 0:
         return yolo_boxes
-    
+
     # 先进行标签感染：每个 YOLO 框最多感染一个主框
     _apply_yolo_label_infection(main_boxes, yolo_boxes, min_overlap_ratio=max(0.01, overlap_threshold * 0.5))
-    
+
     # 标记要移除的主检测器框索引。拟声词过滤只作用于主检测器框，
     # YOLO 自身框仍按下方原有的替换/去重规则处理。
     main_boxes_to_remove = (
@@ -425,7 +426,7 @@ def merge_detection_boxes(
         if len(wrapped_pair_indices) >= 2:
             main_boxes_to_remove.update(wrapped_pair_indices)
             yolo_boxes_to_add_set.add(yolo_idx)
-    
+
     for yolo_idx, yolo_box in enumerate(yolo_boxes):
         # 规则0已判定为强替换的 YOLO 框，跳过后续面积/重叠判定
         if yolo_idx in yolo_boxes_to_add_set:
@@ -442,13 +443,13 @@ def merge_detection_boxes(
         yolo_min_y = np.min(yolo_box.pts[:, 1])
         yolo_max_y = np.max(yolo_box.pts[:, 1])
         yolo_area = (yolo_max_x - yolo_min_x) * (yolo_max_y - yolo_min_y)
-        
+
         # 检查这个YOLO框是否满足任何替换条件
         can_replace = False
         max_overlap_ratio_with_others = 0.0  # 与其他未替换主框的最大重叠率
         replaced_main_indices = set()  # 被这个YOLO框替换的主框索引
         contained_main_boxes_total_area = 0.0  # 被完全包含的主框总面积
-        
+
         for main_idx, main_box in enumerate(main_boxes):
             # 计算主检测器框的AABB和面积
             main_min_x = np.min(main_box.pts[:, 0])
@@ -456,7 +457,7 @@ def merge_detection_boxes(
             main_min_y = np.min(main_box.pts[:, 1])
             main_max_y = np.max(main_box.pts[:, 1])
             main_area = (main_max_x - main_min_x) * (main_max_y - main_min_y)
-            
+
             # 检查是否有重叠
             if not (yolo_max_x < main_min_x or yolo_min_x > main_max_x or
                     yolo_max_y < main_min_y or yolo_min_y > main_max_y):
@@ -466,14 +467,14 @@ def merge_detection_boxes(
                 inter_min_y = max(yolo_min_y, main_min_y)
                 inter_max_y = min(yolo_max_y, main_max_y)
                 inter_area = (inter_max_x - inter_min_x) * (inter_max_y - inter_min_y)
-                
+
                 # 计算重叠率（相对于较小框的比例）
                 overlap_ratio = inter_area / min(yolo_area, main_area) if min(yolo_area, main_area) > 0 else 0
-                
+
                 # 检查YOLO框是否完全包含主检测器框
                 contains = (yolo_min_x <= main_min_x and yolo_max_x >= main_max_x and
                            yolo_min_y <= main_min_y and yolo_max_y >= main_max_y)
-                
+
                 if contains:
                     # YOLO框完全包含这个主检测器框
                     replaced_main_indices.add(main_idx)
@@ -481,13 +482,13 @@ def merge_detection_boxes(
                 else:
                     # 不完全包含，记录与其他主框的重叠率
                     max_overlap_ratio_with_others = max(max_overlap_ratio_with_others, overlap_ratio)
-        
+
         # 检查面积条件：YOLO框面积 >= 所有被包含的主框总面积 × 2
         if len(replaced_main_indices) > 0:
             area_ratio = yolo_area / contained_main_boxes_total_area if contained_main_boxes_total_area > 0 else 0
             if area_ratio >= 2.0:
                 can_replace = True
-        
+
         # 决定这个YOLO框的命运
         if len(replaced_main_indices) > 0:
             # YOLO框包含了至少一个主检测器框
@@ -512,15 +513,15 @@ def merge_detection_boxes(
                 # 有重叠且重叠率 >= 阈值，删除这个YOLO框
                 yolo_boxes_to_remove.add(yolo_idx)
             # else: 没有重叠或重叠率 < 阈值，会在后面作为新框添加
-    
+
     # 构建最终结果
     result = []
-    
+
     # 添加未被移除的主检测器框
     for idx, main_box in enumerate(main_boxes):
         if idx not in main_boxes_to_remove:
             result.append(main_box)
-    
+
     # 添加YOLO框（替换的 + 不重叠的新框）
     for idx, yolo_box in enumerate(yolo_boxes):
         # 如果不在删除列表中，就添加（包括替换框和新框）
@@ -530,32 +531,32 @@ def merge_detection_boxes(
                 if yolo_label:
                     yolo_box.det_label = yolo_label
             result.append(yolo_box)
-    
+
     return result
 
 def draw_detection_debug_image(image: np.ndarray, main_boxes: List[Quadrilateral], yolo_boxes: List[Quadrilateral], overlap_threshold: float = 0.1) -> np.ndarray:
     """
     绘制检测框调试图片，并标注重叠率
-    
+
     Args:
         image: 原始图像
         main_boxes: 主检测器的检测框
         yolo_boxes: YOLO检测器的检测框
         overlap_threshold: 重叠率阈值
-    
+
     Returns:
         绘制了检测框的调试图片
     """
     # 创建图像副本
     debug_img = image.copy()
-    
+
     # 绘制主检测器的框（绿色）
     for box in main_boxes:
         pts = box.pts.astype(np.int32)
         cv2.polylines(debug_img, [pts], True, (0, 255, 0), 2)
         # 添加标签
         cv2.putText(debug_img, "Main", tuple(pts[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-    
+
     # 绘制YOLO检测器的框（蓝色），并计算重叠率
     for yolo_idx, yolo_box in enumerate(yolo_boxes):
         yolo_label = _get_box_label(yolo_box) or 'unknown'
@@ -563,14 +564,14 @@ def draw_detection_debug_image(image: np.ndarray, main_boxes: List[Quadrilateral
         if yolo_label == 'other':
             continue
         pts = yolo_box.pts.astype(np.int32)
-        
+
         # 计算与主检测器框的最大重叠率
         yolo_min_x = np.min(yolo_box.pts[:, 0])
         yolo_max_x = np.max(yolo_box.pts[:, 0])
         yolo_min_y = np.min(yolo_box.pts[:, 1])
         yolo_max_y = np.max(yolo_box.pts[:, 1])
         yolo_area = (yolo_max_x - yolo_min_x) * (yolo_max_y - yolo_min_y)
-        
+
         max_overlap_ratio = 0.0
         for main_box in main_boxes:
             main_min_x = np.min(main_box.pts[:, 0])
@@ -578,7 +579,7 @@ def draw_detection_debug_image(image: np.ndarray, main_boxes: List[Quadrilateral
             main_min_y = np.min(main_box.pts[:, 1])
             main_max_y = np.max(main_box.pts[:, 1])
             main_area = (main_max_x - main_min_x) * (main_max_y - main_min_y)
-            
+
             # 检查是否有重叠
             if not (yolo_max_x < main_min_x or yolo_min_x > main_max_x or
                     yolo_max_y < main_min_y or yolo_min_y > main_max_y):
@@ -588,11 +589,11 @@ def draw_detection_debug_image(image: np.ndarray, main_boxes: List[Quadrilateral
                 inter_min_y = max(yolo_min_y, main_min_y)
                 inter_max_y = min(yolo_max_y, main_max_y)
                 inter_area = (inter_max_x - inter_min_x) * (inter_max_y - inter_min_y)
-                
+
                 # 计算重叠率
                 overlap_ratio = inter_area / min(yolo_area, main_area) if min(yolo_area, main_area) > 0 else 0
                 max_overlap_ratio = max(max_overlap_ratio, overlap_ratio)
-        
+
         # 根据重叠率选择颜色 (RGB格式)
         if max_overlap_ratio >= overlap_threshold:
             # 重叠率超过阈值，用红色表示（会被删除）
@@ -602,20 +603,20 @@ def draw_detection_debug_image(image: np.ndarray, main_boxes: List[Quadrilateral
             # 重叠率低于阈值，用蓝色表示（会保留）
             color = (0, 0, 255)  # Blue
             label = f"YOLO({yolo_label}):{max_overlap_ratio:.2f}"
-        
+
         cv2.polylines(debug_img, [pts], True, color, 2)
         cv2.putText(debug_img, label, tuple(pts[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-    
+
     # 在图像顶部添加阈值信息
     info_text = f"Overlap Threshold: {overlap_threshold:.2f} | Green=Main, Blue=YOLO(Keep), Red=YOLO(Removed)"
     cv2.putText(debug_img, info_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
     cv2.putText(debug_img, info_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1)
-    
+
     # 添加说明：YOLO框已经过NMS去重
     note_text = "Note: YOLO boxes are already NMS-filtered"
     cv2.putText(debug_img, note_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     cv2.putText(debug_img, note_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
-    
+
     return debug_img
 
 async def unload(detector_key: Detector):

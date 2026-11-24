@@ -1,0 +1,3 @@
+﻿Model,Precision@0.5,Recall@0.5,F1-Score,Avg Latency (ms)
+Custom YOLOv8n (Fine-tuned),0.9538,0.9538,0.9538,52.9
+Original Default Detector,0.0107,0.0289,0.0156,1592.6

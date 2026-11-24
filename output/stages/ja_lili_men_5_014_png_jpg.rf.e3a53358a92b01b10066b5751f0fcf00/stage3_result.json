@@ -1,0 +1,61 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 5,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        495,
+        51,
+        585,
+        140
+      ],
+      "confidence": 0.9284,
+      "text": ""
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        57,
+        78,
+        200,
+        204
+      ],
+      "confidence": 0.941,
+      "text": ""
+    },
+    {
+      "reading_order": 3,
+      "bbox": [
+        478,
+        365,
+        601,
+        486
+      ],
+      "confidence": 0.9416,
+      "text": "U"
+    },
+    {
+      "reading_order": 4,
+      "bbox": [
+        249,
+        493,
+        327,
+        580
+      ],
+      "confidence": 0.9328,
+      "text": ""
+    },
+    {
+      "reading_order": 5,
+      "bbox": [
+        166,
+        510,
+        279,
+        628
+      ],
+      "confidence": 0.9241,
+      "text": "O"
+    }
+  ]
+}

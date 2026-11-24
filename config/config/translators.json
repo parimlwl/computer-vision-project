@@ -1,12 +1,12 @@
-{
+﻿{
   "none": {
     "name": "none",
-    "display_name": "不翻译",
+    "display_name": "涓嶇炕璇?,
     "required_env_vars": []
   },
   "original": {
     "name": "original",
-    "display_name": "保留原文",
+    "display_name": "淇濈暀鍘熸枃",
     "required_env_vars": []
   },
   "openai": {
@@ -24,7 +24,7 @@
   },
   "openai_hq": {
     "name": "openai_hq",
-    "display_name": "高质量翻译 OpenAI",
+    "display_name": "楂樿川閲忕炕璇?OpenAI",
     "required_env_vars": [],
     "optional_env_vars": [
       "OPENAI_API_KEY",
@@ -47,7 +47,7 @@
   },
   "gemini_hq": {
     "name": "gemini_hq",
-    "display_name": "高质量翻译 Gemini",
+    "display_name": "楂樿川閲忕炕璇?Gemini",
     "required_env_vars": [],
     "optional_env_vars": [
       "GEMINI_API_KEY",
@@ -65,3 +65,4 @@
     ]
   }
 }
+
