@@ -1,4 +1,4 @@
 ﻿Experiment_Mode,Avg_Detected_Bubbles,Avg_Processing_Time_ms,Relative_CER_vs_Proposed
-"Mode 1: Baseline (Whole-Page OCR, No Detection)",1.0,444.0,2.1762
-"Mode 2: Proposed (YOLOv8 Crop, No Preprocess)",6.93,801.3,0.3393
-Mode 3: Proposed (YOLOv8 Crop + Resize/Denoise/CLAHE),6.93,851.0,0.0
+"Mode 1: Baseline (Whole-Page OCR, No Detection)",1.0,774.2,2.1762
+"Mode 2: Proposed (YOLOv8 Crop, No Preprocess)",6.93,1171.6,0.3393
+Mode 3: Proposed (YOLOv8 Crop + Resize/Denoise/CLAHE),6.93,1193.8,0.0

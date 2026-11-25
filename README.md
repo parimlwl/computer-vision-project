@@ -1,297 +1,148 @@
-<<<<<<< HEAD
-<div align="center">
+# CDS540 Computer Vision Group Project: Comic Speech Bubble Detection & Text Recognition
 
-<img src="doc/images/主页.png" width="360" style="max-width: 100%; height: auto;" alt="Manga Translator UI 主界面">
+本项目为 **CDS540 计算机视觉小组课程设计** 实现代码库。系统基于 `manga-translator-ui` 框架深度定制，构建了一个端到端的**漫画对话气泡检测、图像增强与文本阅读顺序结构化识别流水线**，同时保留并扩展了下游自动翻译嵌字应用能力。
 
-
-**一键翻译所有主流漫画图片中的文字** — 检测 → OCR → 翻译 → 消字 → 嵌字，内置完整富文本编辑器
-
-[![在线 Wiki](https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%20Wiki-%E9%98%85%E8%AF%BB%E6%96%87%E6%A1%A3-4C8BF5?style=for-the-badge)](https://hgmzhn.github.io/manga-translator-ui/zh/)
-[![下载](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-%E5%AE%89%E8%A3%85%E5%8C%85-2EA043?style=for-the-badge)](https://github.com/hgmzhn/manga-translator-ui/releases)
-[![反馈](https://img.shields.io/badge/%E5%8F%8D%E9%A6%88-%E6%8F%90%E4%BA%A4%20Issue-D73A49?style=for-the-badge)](https://github.com/hgmzhn/manga-translator-ui/issues)
-
-[![基于](https://img.shields.io/badge/%E5%9F%BA%E4%BA%8E-manga--image--translator-green)](https://github.com/zyddnys/manga-image-translator)
-[![DeepWiki文档](https://img.shields.io/badge/DeepWiki-%E5%9C%A8%E7%BA%BF%E6%96%87%E6%A1%A3-blue)](https://deepwiki.com/hgmzhn/manga-translator-ui)
-[![许可证](https://img.shields.io/badge/%E8%AE%B8%E5%8F%AF%E8%AF%81-GPL--3.0-red)](LICENSE.txt)
-
-[![模型](https://img.shields.io/badge/%E6%A8%A1%E5%9E%8B-Real--CUGAN-orange)](https://github.com/bilibili/ailab)
-[![模型](https://img.shields.io/badge/%E6%A8%A1%E5%9E%8B-MangaJaNai-orange)](https://github.com/the-database/MangaJaNai)
-[![模型](https://img.shields.io/badge/%E6%A8%A1%E5%9E%8B-YSG-orange)](https://github.com/lhj5426/YSG)
-[![模型](https://img.shields.io/badge/Model-MangaLens%20Bubble%20Segmentation-orange?logo=huggingface)](https://huggingface.co/huyvux3005/manga109-segmentation-bubble)
-[![OCR](https://img.shields.io/badge/OCR-PaddleOCR-blue)](https://github.com/PaddlePaddle/PaddleOCR)
-[![OCR](https://img.shields.io/badge/OCR-MangaOCR-blue)](https://github.com/kha-white/manga-ocr)
-[![OCR](https://img.shields.io/badge/OCR-PaddleOCR--VL--1.5-blue)](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.5)
-
-**语言 / Language**: 简体中文 | [English](README_EN.md)
-
-</div>
-
-**💬 QQ 交流群：1079089991（群密码：`kP9#mB2!vR5*sL1`）**
-
-欢迎**开发者**提交 **PR**，共同改进项目；如果不确定改动是否符合项目方向，或希望先讨论实现方案，可以先提交 Issue 说明想法。提交前请阅读 **[PR 贡献规范](https://hgmzhn.github.io/manga-translator-ui/zh/community/contributing)**。
-
-使用过程中遇到任何问题，也欢迎 **[提交 Issue](https://github.com/hgmzhn/manga-translator-ui/issues)**，并尽量附上运行环境、复现步骤、日志或截图，方便快速定位。
-
-如果这个工具帮到了你，欢迎 **[打赏作者](#support-author)**！你的支持是持续维护的最大动力，**感谢**各位**老板**！
-
-**🔗 友情链接：[MTU-JSON-GUI](https://github.com/charlespfan/mtu-json-gui)**：专为 [Manga Translator UI](https://github.com/hgmzhn/manga-translator-ui) 打造的 Web 端可视化嵌字工具。除了文本替换，还内置几何排版引擎，可通过算法自动处理日漫排版中的对齐、间距与透视问题。
+* **GitHub 仓库地址**: `https://github.com/parimlwl/computer-vision-project.git`
+* **小组成员**: Li Wenle, Li Zhixuan, Li Chenfeng, Li Yuchen, Lu Kuan
 
 ---
 
-## 📸 效果展示
+## 一、 系统架构（三阶段核心流水线）
 
-<div align="center">
-
-<table>
-<tr>
-<td align="center"><b>翻译前</b></td>
-<td align="center"><b>翻译后</b></td>
-</tr>
-<tr>
-<td><img src="doc/images/20012.png" width="400" alt="翻译前"></td>
-<td><img src="doc/images/0012.png" width="400" alt="翻译后"></td>
-</tr>
-</table>
-
-</div>
-
-### 🖥️ 程序界面
-
-<div align="center">
-
-<table>
-<tr>
-<td colspan="2" align="center"><b>可视化编辑器</b></td>
-</tr>
-<tr>
-<td colspan="2"><img src="doc/images/QQ20260811-044038.png" width="760" alt="可视化编辑器界面"></td>
-</tr>
-<tr>
-<td colspan="2" align="center"><b>参数设置</b></td>
-</tr>
-<tr>
-<td colspan="2"><img src="doc/images/QQ20260811-044012.png" width="760" alt="参数设置界面"></td>
-</tr>
-</table>
-
-</div>
+1. **Stage 1：漫画对话气泡检测（Speech Bubble Detection）**
+   * 基于预训练 `YOLOv8n` 模型在日漫气泡标注数据集上进行领域微调（`models/detection/yolo_custom.pt`，测试集 $\text{mAP}_{50} = 0.871$）。
+   * 自动过滤分镜边框、背景网点与非对白拟声词干扰。
+2. **Stage 2：裁剪区域图像增强与文本识别（Preprocessing & OCR）**
+   * 核心模块：`manga_translator/ocr/preprocess.py`
+   * 对每个检测框裁剪区域依次执行 **双三次插值放大（Bicubic Resizing）$\rightarrow$ 双边滤波去噪（Bilateral Denoising）$\rightarrow$ LAB 色彩空间 CLAHE 局部对比度增强**。
+   * 调用预训练日漫识别模型 `Manga-OCR (mocr)` 提取竖排/横排文本。
+3. **Stage 3：阅读顺序组织与可视化输出（Reading Order & Visualization）**
+   * 核心模块：`manga_translator/utils/bubble_organizer.py`
+   * 根据漫画阅读习惯（默认日漫从右到左、从上到下 `rtl`）对气泡进行空间聚类排序。
+   * 在原图上绘制绿色气泡边界框、红色阅读顺序编号（`#1, #2...`）与识别文本，并同步导出结构化 JSON 数据。
 
 ---
 
-## ✨ 核心功能
+## 二、 环境配置与快速安装（Windows PowerShell）
 
-### 翻译功能
-
-- 🔍 **智能文本检测** - 自动识别漫画中的文字区域
-- 📝 **多语言 OCR** - 支持日语、中文、英语等多种语言
-- 🌐 **多种翻译引擎** - OpenAI、Gemini、Vertex、Sakura（含高质量模式）
-- 🎯 **高质量翻译** - 支持 GPT-4o、Gemini 多模态 AI 翻译
-- 📚 **自动提取术语** - AI 自动识别并积累专有名词，保持翻译一致性
-- 🎨 **AI 上色 / OCR / 渲染** - 支持多模态 AI 图像处理能力
-- 🔑 **API Key 轮换与冷却** - 多 Key 自动切换，降低限流影响
-
-### 排版与富文本
-
-- 🎈 **智能气泡排版** - 译文自动缩进气泡形状里面，支持智能气泡、智能缩放与严格边界三种模式，以及气泡内居中和根据气泡排版开关
-- ✂️ **中文语义断句** - 本地 HanLP 模型按语义决定换行点，模型缺失时自动回退普通换行
-- 🤖 **AI 智能断句** - 根据上下文自动优化换行，提升译文可读性
-- 🖋️ **横排 / 竖排自动判定** - 按文本方向选择合适的排版方式
-- 🧩 **富文本规则自动套用** - 按规则在输入文字时自动应用样式
-- 🔤 **字体管理** - 支持系统字体与 `fonts/` 自定义字体
-
-### 可视化编辑器
-
-- ✏️ **区域编辑** - 移动、旋转、变形文本框
-- 📐 **文本编辑** - 手动翻译，逐框调整字号、颜色、描边与间距
-- 🎨 **完整富文本** - 支持行内加粗、变色、描边、改字号、注音（Ruby）与竖排内横排（TCY），浮动编辑器支持预设和规则自动套用
-- 🖌️ **蒙版编辑** - 画笔工具、橡皮擦、仿制印章
-- 🔍 **原图对比** - 与原图双栏对比
-- 📏 **多选排版** - 对齐文本框并分布间距
-- ⏪ **撤销/重做** - 完整操作历史
-- ⌨️ **快捷键支持** - `A/D` 切换图片，`V` 切换选中文本框的横排/竖排，`1/2/3` 切换蒙版/画笔/印章页，`Q/W/E` 切换当前页的三个工具，`Ctrl+A` 全选文本框，`Ctrl+S` 保存工程数据，`Ctrl+Q` 导出图片，`Ctrl+Shift+R` 显示/关闭浮动富文本编辑器
-- 🖱️ **鼠标滚轮快捷键** - Ctrl+滚轮缩放文本框，Shift+滚轮调整画笔大小
-
-### 批量与自动化
-
-- 📦 **批量处理** - 一次处理整个文件夹
-- 🧰 **批量管理** - 按条件匹配区域，批量修改属性、替换文字或应用富文本样式；执行前预览命中结果，支持写回前备份与恢复
-- 📥 **PSD 导出** - 导出原图、修复图和文本分层，便于继续编辑
-- 🔄 **JSON / TXT 导入导出** - 导入、导出文本并支持写回
-- ⌨️ **命令行模式** - 适合批量处理和自动化脚本
-- 🌐 **Web UI** - 提供账号与配额管理
-- 🐳 **Docker 部署** - 支持容器化运行
-
-📖 [编辑器快捷键全表](https://hgmzhn.github.io/manga-translator-ui/zh/desktop/editor/shortcuts) ｜ [设置逐项说明](https://hgmzhn.github.io/manga-translator-ui/zh/reference/settings-index)
-
----
-
-## 🚀 快速开始
-
-> ⚠️ **Windows 用户请先安装运行库**：[Microsoft Visual C++ 运行库](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-
-### Windows
-
-#### 便携安装包（⭐ 推荐，支持更新）
-
-无需预装 Python。下载 [便携整合包](https://github.com/hgmzhn/manga-translator-ui/releases/tag/portable)，解压后运行 `Win-Install-or-Update.bat`，再双击 `Win-Start.bat` 启动；更新时在安装菜单选择 `[2] 更新`。 📖 [便携包安装详解](https://hgmzhn.github.io/manga-translator-ui/zh/install/windows-portable) ｜ [更新与版本切换](https://hgmzhn.github.io/manga-translator-ui/zh/install/update-and-version-switching)
-
-#### 下载发布便携包
-
-从 [GitHub Releases](https://github.com/hgmzhn/manga-translator-ui/releases) 下载对应版本，解压后双击 `Win-Start.bat`。GeForce 10 系必须使用 CUDA 12.6；RTX 50 系必须使用 CUDA 13.0，如不支持请更新 NVIDIA 驱动。包内已安装 Python 依赖和模型文件。 📖 [发行版下载说明](https://hgmzhn.github.io/manga-translator-ui/zh/install/release-download)
-
-
-#### 从源码运行（开发者）
-
-适用于需要修改代码的用户，按 [Windows 源码安装说明](https://hgmzhn.github.io/manga-translator-ui/zh/install/source-windows) 执行。
-
-### Linux / macOS
-
-Linux 和 macOS 共用同一套安装脚本：
-
-```bash
-mkdir -p ~/manga-translator-ui && cd ~/manga-translator-ui
-curl -L -O https://raw.githubusercontent.com/hgmzhn/manga-translator-ui/main/Unix-Install-or-Update.sh
-chmod +x Unix-Install-or-Update.sh && ./Unix-Install-or-Update.sh
+### 1. 克隆仓库并进入目录
+```powershell
+git clone https://github.com/parimlwl/computer-vision-project.git
+cd computer-vision-project
 ```
 
-安装完成后启动：`./Unix-Start.sh`；更新代码和依赖：`./Unix-Install-or-Update.sh`。
+### 2. 创建 Python 3.12 虚拟环境并安装依赖（基于 `uv`）
+```powershell
+# 若本机尚未安装 uv，请先取消下行注释并执行安装：
+# powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-Apple Silicon 使用 Metal/MPS；Linux 会自动选择 NVIDIA、AMD ROCm 或 CPU 依赖组。 📖 [Linux 与 macOS 安装](https://hgmzhn.github.io/manga-translator-ui/zh/install/linux-and-macos)
+# 安装 Python 3.12 并创建虚拟环境
+uv python install 3.12
+uv venv --python 3.12
 
-### Docker 部署（实验性）
+# 激活虚拟环境
+.venv\Scripts\Activate.ps1
 
-```bash
-docker run -d --name manga-translator -p 8000:8000 --restart unless-stopped -v manga-translator-models:/app/models -v manga-translator-fonts:/app/fonts -v manga-translator-dict:/app/dict -v manga-translator-config:/app/config -v manga-translator-server:/app/manga_translator/server/data -v manga-translator-logs:/app/logs -v manga-translator-result:/app/result hgmzhn/manga-translator:latest-cpu
+# 同步安装项目核心依赖
+uv sync --no-dev
+```
+*(提示：若运行时提示缺少检测或识别库，可补充执行 `uv pip install ultralytics manga-ocr`。)*
+
+### 3. 初始化本地配置文件
+确保 `config/config.json` 存在且关键枚举参数正确（`ocr` 必须为 `"mocr"`，`detector` 设为 `"yolo_custom"`）：
+```powershell
+if (!(Test-Path config\config.json)) { Copy-Item config\config.example.json config\config.json }
 ```
 
-命名卷会持久化模型、字体、词典、配置、账号数据、日志和翻译结果；删除容器不会删除这些数据。启动后访问 `http://localhost:8000`，需要 GPU 或自定义宿主机目录时参阅相关部署文档。 📖 [Docker 部署](https://hgmzhn.github.io/manga-translator-ui/zh/install/docker) ｜ [Web UI 启动与访问](https://hgmzhn.github.io/manga-translator-ui/zh/web/launch-and-access)
-
 ---
 
-## 📖 使用教程
+## 三、 运行模式说明（四种常用工作流）
 
-### 🖥️ Qt 界面模式
+### 模式 A：CDS540 课设三阶段流水线（桌面端 UI 可视化）
+开启 `CDS540_ENABLED="1"` 环境变量后，后端将自动屏蔽擦除与翻译步骤，直接运行三阶段检测、预处理与阅读顺序排序并导出分段可视化图：
 
-打开程序后，先选择源语言、目标语言和翻译器；使用在线翻译器时，请先填写 [API Key](https://hgmzhn.github.io/manga-translator-ui/zh/desktop/api-management/api-key-guide)。首次使用推荐 **高质量翻译 OpenAI** 或 **高质量翻译 Gemini**；如需单独管理 Google 官方 Key 和模型，也可以选择 **高质量翻译 Vertex**。
-
-设置输出目录，添加图片或文件夹，然后点击“开始翻译”即可。CPU 版本请先关闭“使用 GPU”。 📖 [第一次翻译（手把手）](https://hgmzhn.github.io/manga-translator-ui/zh/introduction/first-translation)
-
-### ⌨️ 命令行模式
-
-适合批量处理和自动化脚本。
-
-在项目根目录执行以下命令。依赖通过 `uv sync` 或安装脚本准备后，无需手动激活虚拟环境。
-
-```bash
-# Local 模式（推荐，命令行翻译）
-uv run --no-sync python -m manga_translator local -i manga.jpg
-
-# 或简写（默认 Local 模式）
-uv run --no-sync python -m manga_translator -i manga.jpg
-
-# 翻译整个文件夹
-uv run --no-sync python -m manga_translator local -i ./manga_folder/ -o ./output/
-
-# Web 服务器模式（带管理界面和 API）
-uv run --no-sync python -m manga_translator web --host 127.0.0.1 --port 8000 --use-gpu
-
-# 查看所有参数
-uv run --no-sync python -m manga_translator --help
+```powershell
+$env:CDS540_ENABLED="1"
+uv run --no-sync python desktop_qt_ui/main.py
 ```
 
-📖 想了解命令行参数？[查看命令结构与参数](https://hgmzhn.github.io/manga-translator-ui/zh/cli/command-structure)
-
-📋 想了解其他工作流程？[查看工作流程总览](https://hgmzhn.github.io/manga-translator-ui/zh/workflows/normal)
-
-⚙️ 想了解各项设置？[查看设置与参数说明](https://hgmzhn.github.io/manga-translator-ui/zh/reference/settings-index)
-
-🔍 出现错误？[查看故障排查](https://hgmzhn.github.io/manga-translator-ui/zh/troubleshooting/installation-and-startup)
-
----
-
-## ⭐ Star 趋势
-
-<div align="center">
-
-<a href="https://www.star-history.com/?repos=hgmzhn%2Fmanga-translator-ui&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=hgmzhn/manga-translator-ui&type=date&theme=dark&legend=top-left&sealed_token=wJmi34JS3-ufiYKvCyzrANr-YuO12VxLmfwOZ7j3MUXhYUg-P8-wb9yOJ4U5AhPutbjbuoMya-DHcGHo6g9x-yUNIQldu--QrADIwtoFHbhaiKamXEvPZg" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=hgmzhn/manga-translator-ui&type=date&legend=top-left&sealed_token=wJmi34JS3-ufiYKvCyzrANr-YuO12VxLmfwOZ7j3MUXhYUg-P8-wb9yOJ4U5AhPutbjbuoMya-DHcGHo6g9x-yUNIQldu--QrADIwtoFHbhaiKamXEvPZg" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=hgmzhn/manga-translator-ui&type=date&legend=top-left&sealed_token=wJmi34JS3-ufiYKvCyzrANr-YuO12VxLmfwOZ7j3MUXhYUg-P8-wb9yOJ4U5AhPutbjbuoMya-DHcGHo6g9x-yUNIQldu--QrADIwtoFHbhaiKamXEvPZg" />
- </picture>
-</a>
-
-</div>
+* **界面操作步骤**：
+  1. 导入待测试的漫画图片。
+  2. 在右侧参数栏确认：**检测器**选 `yolo_custom`，**文字识别 (OCR)** 选 `mocr`，**翻译器**选 `none`。
+  3. 点击 **开始翻译**。
+* **输出结果位置**：
+  * **UI 最终标注图**：`result/` 目录下（原图叠加绿色检测框、红字顺序编号与原文）。
+  * **三阶段分段过程图与结构化数据**：`output/stages/<图片文件名>/`
+    * `stage1_detection.png`：Stage 1 气泡检测结果
+    * `stage2_preprocess_compare.png`：Stage 2 裁剪预处理前后对比网格图
+    * `stage3_final_ordered.png`：Stage 3 阅读顺序与识别最终可视化图
+    * `stage3_result.json`：包含 `reading_order`、`bbox`、`confidence`、`text` 的结构化 JSON 文件
 
 ---
 
-## 🙏 致谢
+### 模式 B：运行定量消融对比实验（生成 CSV 评估表）
+一键运行报告中的三组对照实验（**Baseline 整页直接 OCR** vs. **Proposed 无预处理** vs. **Proposed 完整三阶段**）：
 
-**核心引擎与参考项目**
+```powershell
+$env:CDS540_ENABLED="1"
+uv run --no-sync python evaluate_experiments.py
+```
 
-- [zyddnys/manga-image-translator](https://github.com/zyddnys/manga-image-translator) — 核心翻译引擎
-- [dmMaze/BallonsTranslator](https://github.com/dmMaze/BallonsTranslator) — 文本渲染实现参考
-- [charlespfan/mtu-json-gui](https://github.com/charlespfan/mtu-json-gui) — 富文本实现参考
-
-**模型与识别**
-
-- [bilibili/ailab](https://github.com/bilibili/ailab) — Real-CUGAN 超分辨率模型
-- [the-database/MangaJaNai](https://github.com/the-database/MangaJaNai) — MangaJaNai/IllustrationJaNai 超分辨率模型
-- [lhj5426/YSG](https://github.com/lhj5426/YSG) — 提供模型支持
-- [huyvux3005/manga109-segmentation-bubble](https://huggingface.co/huyvux3005/manga109-segmentation-bubble) — MangaLens Bubble Segmentation 气泡分割模型
-- [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) — 提供 OCR 模型支持
-- [kha-white/manga-ocr](https://github.com/kha-white/manga-ocr) — MangaOCR 模型支持
-- [PaddlePaddle/PaddleOCR-VL-1.5](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.5) — 官方 PaddleOCR-VL-1.5 模型页
-
-以及所有贡献者和用户的支持 ❤️
+* **输出文件**：`output/cds540_experiment_results.csv`
+* **参考实验结论**：
+  * **Baseline（整页直接 OCR）**：平均检出区域 `1.00`，单页耗时 `444.0 ms`，相对字符错误率（Relative CER）高达 `2.1762`。
+  * **Proposed w/o Preprocess（仅 YOLOv8 裁剪）**：平均检出气泡 `6.93` 个，单页耗时 `801.3 ms`，相对 CER 降至 `0.3393`（**错误率降幅 84.41%**）。
+  * **Proposed Full（完整三阶段含图像增强）**：单页总耗时 `851.0 ms`（预处理仅增加 `49.7 ms` / `+6.20%` 开销），进一步修正了低分辨率与网点背景文字的识别细节。
 
 ---
 
-<a id="support-author"></a>
+### 模式 C：批量生成语义分割掩码图（用于报告配图）
+基于检测结果批量生成**黑底白字气泡轮廓掩码**与**白底黑字（气泡内对白）/洋红字（气泡外噪声）双色文字分类掩码**：
 
-## ❤️ 支持作者
+```powershell
+uv run --no-sync python generate_masks.py
+```
 
-如果这个项目对你有帮助，欢迎请作者喝杯奶茶 🧋
-
-<div align="center">
-
-<table>
-<tr>
-<td align="center" width="220"><img src="doc/images/mm_reward_qrcode_1765200960689.png" width="180" alt="微信赞赏码"><br><sub>💚 微信赞赏</sub></td>
-<td width="40"></td>
-<td align="center" width="220"><img src="doc/images/IMG_20251223_173711.jpg" width="180" alt="支付宝赞助码"><br><sub>💙 支付宝赞助</sub></td>
-</tr>
-</table>
-
-<sub>感谢你的支持 ✨</sub>
-
-</div>
+* **输出目录**：
+  * `output/generated_masks/bubble_masks/`
+  * `output/generated_masks/text_color_masks/`
 
 ---
 
-## 📝 许可证
+### 模式 D（可选扩展）：完整漫画中文化翻译嵌字模式
+关闭 `CDS540_ENABLED` 拦截后，可将自训练的 YOLOv8 检测器与大语言模型翻译管线串联，输出完整擦除与嵌字后的中文漫画：
 
-本项目代码基于 **GPL-3.0** 许可证开源。
+```powershell
+$env:CDS540_ENABLED="0"
+uv run --no-sync python desktop_qt_ui/main.py
+```
 
-**模型协议声明**：本项目支持使用 MangaJaNai/IllustrationJaNai 模型进行图像超分辨率处理。这些模型权重文件采用 **CC BY-NC 4.0**（署名-非商业性使用 4.0 国际）协议，**仅供非商业用途使用**。模型来源：[MangaJaNai](https://github.com/the-database/MangaJaNai)。
+* **界面参数设置（以 DeepSeek API 为例）**：
+  * **检测器**：`yolo_custom`
+  * **文字识别 (OCR)**：`mocr`
+  * **翻译器**：`openai` 或 `openai_hq`
+  * **OpenAI API 地址**：`https://api.deepseek.com`
+  * **模型名称**：`deepseek-flash`
+  * **API Key**：填入有效的 `sk-...` 密钥后点击 **开始翻译**。
 
 ---
 
-## ⚠️ 特别声明
+## 四、 核心修改文件清单
 
-本项目仅提供技术演示与个人学习交流用途，不构成任何法律、商业或合规建议。
-你在安装、配置、调用和分发本项目相关功能时，应自行确认并持续遵守所在地法律法规、平台规则、内容来源许可及第三方服务条款。
+| 文件路径 | 功能说明 |
+| :--- | :--- |
+| `manga_translator/detection/yolo_custom.py` | 注册并封装微调后的 `YOLOv8n` 气泡检测器（`yolo_custom`） |
+| `manga_translator/ocr/preprocess.py` | 实现 Stage 2 裁剪区域缩放（Resize）、双边滤波去噪与 CLAHE 对比度增强 |
+| `manga_translator/utils/bubble_organizer.py` | 实现 Stage 3 气泡空间位置聚类、阅读方向排序与原图可视化渲染 |
+| `manga_translator/manga_translator.py` | 集成三阶段分段流水线调度逻辑与 `CDS540_ENABLED` 评估模式开关 |
+| `evaluate_experiments.py` | 自动化三组消融实验评估脚本，计算平均检测数、耗时与相对 CER |
+| `generate_masks.py` | 批量生成气泡二值轮廓掩码与双色文本分类掩码的可视化脚本 |
 
-**免责与责任限制**
+---
 
-- 使用本项目产生的一切行为与后果（包括但不限于内容处理、发布、传播、二次分发、商业化使用），均由使用者独立承担责任。
-- 你应自行确保输入内容、输出内容及数据来源具备合法授权，不得用于侵犯著作权、商标权、隐私权、肖像权等合法权益的场景。
-- 严禁将本项目用于任何违法违规用途，包括但不限于盗版传播、未授权批量抓取与搬运、绕过平台限制、诈骗、诽谤、侵害他人合法权益等行为。
-- 本项目依赖第三方模型、API、数据与库（含 OCR、翻译、超分模型等）；相关可用性、准确性、稳定性、费用、风控与合规要求由对应服务方负责，使用者需自行承担相应风险与成本。
-- 对于因使用或无法使用本项目导致的任何直接或间接损失（包括但不限于数据损失、业务中断、收益损失、账户风险、第三方索赔等），项目作者与贡献者在适用法律允许范围内不承担责任。
-- 若你将本项目用于团队或组织环境，应自行完成权限管理、日志审计、内容审核与合规评估，并建立必要的人工复核流程。
+## 五、 外部代码、模型与数据致谢
 
-请在使用前审慎评估风险；继续使用即视为你已阅读、理解并同意上述声明。
-=======
-# computer-vision-project
->>>>>>> 925873467282a0b15a7963e99d5218cd671e343f
+* 基础界面与推理框架：[hgmzhn/manga-translator-ui](https://github.com/hgmzhn/manga-translator-ui)
+* 目标检测架构：[Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics)
+* 日漫光学字符识别模型：[kha-white/manga-ocr](https://github.com/kha-white/manga-ocr)
+* 标注数据集：Roboflow 公开漫画对话气泡检测数据集（`manga_det_dataset`）

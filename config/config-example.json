@@ -64,7 +64,7 @@
     "ai_ocr_custom_prompt": null
   },
   "detector": {
-    "detector": "default",
+    "detector": "yolo_custom",
     "detection_size": 2048,
     "det_rearrange_min_effective_short_side": 341,
     "text_threshold": 0.5,
