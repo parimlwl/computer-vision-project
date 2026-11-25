@@ -4468,8 +4468,7 @@ class MangaTranslator:
     async def _run_cds540_staged_pipeline(self, image: Image.Image, config: Config) -> Context:
         """
         CDS540 课程设计专用三阶段流水线：
-        Stage 1 (Detection) -> Stage 2 (Crop + Preprocess + OCR) -> Stage 3 (Reading Order + JSON + Vis)
-        彻底屏蔽 Inpainting 与 Translation，并将各阶段结果分别保存至 output/stages/
+        Stage 1 (Detection) -> Stage 2 (Crop + Preprocess + OCR) -> Stage 3 (Reading Order + Translation + JSON + Vis)
         """
         from .ocr.preprocess import preprocess_bubble, build_stage2_comparison_grid
         from .utils.bubble_organizer import (
@@ -4484,6 +4483,8 @@ class MangaTranslator:
         ctx.input = image
         ctx.img_rgb, ctx.img_alpha = load_image(image)
         ctx.bubble_mask = None
+        ctx.from_lang = "auto"
+        ctx.config = config
         img_h, img_w = ctx.img_rgb.shape[:2]
 
         # 读取实验模式参数（默认 proposed，可在环境变量 CDS540_MODE 切换 baseline / proposed_no_prep）
@@ -4511,15 +4512,34 @@ class MangaTranslator:
             merged_text = " ".join([tl.text for tl in ocr_res if getattr(tl, "text", "").strip()])
             raw_bubbles.append({"bbox": [0, 0, img_w, img_h], "text": merged_text, "conf": 1.0})
         else:
-            # ================= STAGE 1: 气泡检测 =================
+            # ================= STAGE 1: 气泡检测（含重叠框去重） =================
             await self._report_progress("detection")
             det_textlines, ctx.mask_raw, ctx.mask = await self._run_detection(config, ctx)
-            stage1_boxes = []
+            raw_boxes = []
             for tl in det_textlines or []:
                 pts = np.asarray(tl.pts)
                 x1, y1 = int(pts[:, 0].min()), int(pts[:, 1].min())
                 x2, y2 = int(pts[:, 0].max()), int(pts[:, 1].max())
-                stage1_boxes.append({"bbox": [x1, y1, x2, y2], "conf": float(getattr(tl, "prob", 0.0))})
+                raw_boxes.append({"bbox": [x1, y1, x2, y2], "conf": float(getattr(tl, "prob", 0.0))})
+
+            # 过滤高度重叠的重复框（解决 #5 与 #6 重叠问题）
+            raw_boxes.sort(key=lambda b: b["conf"], reverse=True)
+            stage1_boxes = []
+            for box in raw_boxes:
+                bx1, by1, bx2, by2 = box["bbox"]
+                b_area = max(1, (bx2 - bx1) * (by2 - by1))
+                is_dup = False
+                for kept in stage1_boxes:
+                    kx1, ky1, kx2, ky2 = kept["bbox"]
+                    ix1, iy1 = max(bx1, kx1), max(by1, ky1)
+                    ix2, iy2 = min(bx2, kx2), min(by2, ky2)
+                    inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
+                    k_area = max(1, (kx2 - kx1) * (ky2 - ky1))
+                    if inter / min(b_area, k_area) > 0.65:
+                        is_dup = True
+                        break
+                if not is_dup:
+                    stage1_boxes.append(box)
 
             # 保存 Stage 1 检测可视化图
             stage1_vis = render_stage1_detection_image(ctx.img_rgb, stage1_boxes)
@@ -4529,7 +4549,7 @@ class MangaTranslator:
                 logger,
             )
 
-            # ================= STAGE 2: 裁剪 + 图像预处理 + 单框 OCR =================
+            # ================= STAGE 2: 裁剪 + 图像预处理 + 切片内文本行 OCR =================
             await self._report_progress("ocr")
             crop_pairs = []
             for idx, box_info in enumerate(stage1_boxes):
@@ -4538,20 +4558,38 @@ class MangaTranslator:
                 if raw_crop.size == 0:
                     continue
 
-                proc_crop = preprocess_bubble(raw_crop, enable=enable_preprocess, target_height=96)
+                proc_crop = preprocess_bubble(raw_crop, enable=enable_preprocess, target_height=160)
                 crop_pairs.append((raw_crop, proc_crop))
 
-                # 在预处理后的独立切片上运行原版 OCR 引擎
+                # 在增强后的独立切片内部定位单行文字（解决多列竖排气泡直接送入48px OCR被压扁识别为空的问题）
                 ch, cw = proc_crop.shape[:2]
-                crop_quad = Quadrilateral(
-                    np.array([[0, 0], [cw, 0], [cw, ch], [0, ch]], dtype=np.int32),
-                    "",
-                    box_info["conf"],
+                sub_lines, _, _ = await dispatch_detection(
+                    "default",
+                    proc_crop,
+                    max(256, max(ch, cw)),
+                    config.detector.text_threshold,
+                    config.detector.box_threshold,
+                    config.detector.unclip_ratio,
+                    self.device,
+                    False,
                 )
+                if not sub_lines:
+                    # 若切片内仅单行未触发子检测，自动按竖列或全框构造单行框
+                    sub_lines = [
+                        Quadrilateral(
+                            np.array([[0, 0], [cw, 0], [cw, ch], [0, ch]], dtype=np.int32),
+                            "",
+                            box_info["conf"],
+                        )
+                    ]
+                else:
+                    # 日漫切片内多列文本按从右到左排序后再拼接
+                    sub_lines.sort(key=lambda q: -float(np.mean(np.asarray(q.pts)[:, 0])))
+
                 ocr_results = await dispatch_ocr(
                     config.ocr.ocr,
                     proc_crop,
-                    [crop_quad],
+                    sub_lines,
                     config.ocr,
                     self.device,
                     False,
@@ -4564,18 +4602,30 @@ class MangaTranslator:
                     "conf": box_info["conf"],
                 })
 
-            # 保存 Stage 2 预处理前后切片对比图
-            stage2_grid = build_stage2_comparison_grid(crop_pairs)
-            imwrite_unicode(
-                os.path.join(stage_dir, "stage2_preprocess_compare.png"),
-                cv2.cvtColor(stage2_grid, cv2.COLOR_RGB2BGR),
-                logger,
-            )
+        # ================= STAGE 3: 阅读顺序组织 + 批量翻译 + JSON + 最终可视化 =================
+        ordered_bubbles = sort_reading_order(raw_bubbles, direction=direction, img_h=img_h)
 
-        # ================= STAGE 3: 阅读顺序组织 + JSON + 最终可视化 =================
-        ordered_bubbles = sort_reading_order(raw_bubbles, direction=direction)
+        # 调用当前配置好的翻译器（如 DeepSeek / OpenAI / Gemini）批量翻译
+        if ordered_bubbles and config.translator.translator != Translator.none:
+            await self._report_progress("translating")
+            try:
+                non_empty_indices = [i for i, b in enumerate(ordered_bubbles) if (b.get("text") or "").strip()]
+                if non_empty_indices:
+                    src_texts = [ordered_bubbles[i]["text"] for i in non_empty_indices]
+                    translated_texts = await self._batch_translate_texts(src_texts, config, ctx)
+                    for idx_b, trans in zip(non_empty_indices, translated_texts):
+                        ordered_bubbles[idx_b]["translation"] = trans
+            except Exception as trans_err:
+                logger.warning(f"[CDS540 Stage3] 批量翻译异常，回退保留原文输出: {trans_err}")
+
         json_out_path = os.path.join(stage_dir, "stage3_result.json")
-        vis_rgb = save_and_visualize_stage3(ctx.img_rgb, ordered_bubbles, json_out_path, mode_name=pipeline_mode)
+        vis_rgb = save_and_visualize_stage3(
+            ctx.img_rgb,
+            ordered_bubbles,
+            json_path=json_out_path,
+            mode_name=pipeline_mode,
+            show_translation=True,
+        )
 
         imwrite_unicode(
             os.path.join(stage_dir, "stage3_final_ordered.png"),
@@ -4589,7 +4639,7 @@ class MangaTranslator:
             f"time={elapsed_ms:.1f}ms, saved to {stage_dir}"
         )
 
-        # 将 Stage 3 可视化结果直接赋给 ctx.result 返回给前端 UI 显示，跳过擦除与翻译
+        # 将 Stage 3 可视化结果直接赋给 ctx.result 返回给前端 UI 显示
         ctx.result = Image.fromarray(vis_rgb)
         ctx.text_regions = []
         ctx.cds540_complete = True

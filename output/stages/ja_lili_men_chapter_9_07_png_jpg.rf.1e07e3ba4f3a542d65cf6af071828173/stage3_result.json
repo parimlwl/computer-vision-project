@@ -1,0 +1,28 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 2,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        100,
+        37,
+        220,
+        145
+      ],
+      "confidence": 0.9454,
+      "text": ""
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        40,
+        184,
+        165,
+        283
+      ],
+      "confidence": 0.9333,
+      "text": ""
+    }
+  ]
+}

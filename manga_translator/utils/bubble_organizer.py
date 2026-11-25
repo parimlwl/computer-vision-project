@@ -10,6 +10,8 @@ def _load_cjk_font(size: int = 18):
         "C:/Windows/Fonts/msyh.ttc",
         "C:/Windows/Fonts/msgothic.ttc",
         "C:/Windows/Fonts/simhei.ttf",
+        "/System/Library/Fonts/PingFang.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     ]
     for fp in font_candidates:
         if os.path.exists(fp):
@@ -20,13 +22,15 @@ def _load_cjk_font(size: int = 18):
     return ImageFont.load_default()
 
 
-def sort_reading_order(bubbles: list, direction: str = "rtl", row_tolerance: int = 60) -> list:
+def sort_reading_order(bubbles: list, direction: str = "rtl", row_tolerance: int = 60, img_h: int = None) -> list:
     """
     Stage 3: 按阅读方向排序气泡
     bubbles: [{"bbox": [x1, y1, x2, y2], "text": "...", "conf": 0.9}, ...]
     """
     if not bubbles:
         return []
+
+    tol = max(30, int(img_h * 0.04)) if img_h else row_tolerance
 
     for b in bubbles:
         x1, y1, x2, y2 = b["bbox"]
@@ -39,7 +43,7 @@ def sort_reading_order(bubbles: list, direction: str = "rtl", row_tolerance: int
     current_row = [bubbles[0]]
 
     for b in bubbles[1:]:
-        if abs(b["cy"] - current_row[-1]["cy"]) <= row_tolerance:
+        if abs(b["cy"] - current_row[0]["cy"]) <= tol:
             current_row.append(b)
         else:
             rows.append(current_row)
@@ -51,12 +55,15 @@ def sort_reading_order(bubbles: list, direction: str = "rtl", row_tolerance: int
     for row in rows:
         row.sort(key=lambda item: -item["cx"] if direction == "rtl" else item["cx"])
         for b in row:
-            ordered.append({
+            item_dict = {
                 "reading_order": order_idx,
                 "bbox": b["bbox"],
                 "confidence": round(float(b.get("conf", 1.0)), 4),
-                "text": b["text"]
-            })
+                "text": b["text"],
+            }
+            if "translation" in b:
+                item_dict["translation"] = b["translation"]
+            ordered.append(item_dict)
             order_idx += 1
     return ordered
 
@@ -85,8 +92,9 @@ def save_and_visualize_stage3(
     ordered_bubbles: list,
     json_path: str,
     mode_name: str = "proposed",
+    show_translation: bool = True,
 ) -> np.ndarray:
-    """导出结构化 JSON 并在原图绘制阅读顺序编号与识别文本"""
+    """导出结构化 JSON（含原文与译文）并在原图绘制阅读顺序编号与文本"""
     os.makedirs(os.path.dirname(json_path), exist_ok=True)
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(
@@ -120,9 +128,11 @@ def save_and_visualize_stage3(
 
     for item in ordered_bubbles:
         x1, y1, x2, y2 = item["bbox"]
-        text_preview = (item["text"] or "").replace("\n", " ")[:18]
+        # 优先显示翻译结果；若未翻译或关闭显示则显示 OCR 原文
+        raw_display = item.get("translation") if (show_translation and item.get("translation")) else item.get("text", "")
+        text_preview = (raw_display or "").replace("\n", " ")[:22]
         tx, ty = x1 + 38, max(y1 - 22, 4)
-        # 白色半透明底框让红字在黑白网点上更清晰
+
         bbox_txt = draw.textbbox((tx, ty), text_preview, font=font)
         draw.rectangle(bbox_txt, fill=(255, 255, 255))
         draw.text((tx, ty), text_preview, fill=(210, 20, 40), font=font)
