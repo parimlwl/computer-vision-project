@@ -111,10 +111,18 @@ uv run --no-sync python generate_masks.py
 
 ### 模式 D（可选扩展）：完整漫画中文化翻译嵌字模式
 关闭 `CDS540_ENABLED` 拦截后，可将自训练的 YOLOv8 检测器与大语言模型翻译管线串联，输出完整擦除与嵌字后的中文漫画：
-
 ```powershell
 $env:CDS540_ENABLED="0"
-uv run --no-sync python desktop_qt_ui/main.py
+uv run --no-sync python evaluate_experiments.py
+```
+
+### 去除噪声
+```powershell
+# 默认参数运行（适合中度高斯噪声 + 轻度模糊）
+uv run --no-sync python denoise_deblur.py "你的图片路径.jpg"
+
+# 如果噪声很重且非常模糊，可以适当调高参数（去噪强度=14，锐化强度=1.5）
+uv run --no-sync python denoise_deblur.py "你的图片路径.jpg" 14 1.5
 ```
 
 * **界面参数设置（以 DeepSeek API 为例）**：
@@ -146,3 +154,4 @@ uv run --no-sync python desktop_qt_ui/main.py
 * 目标检测架构：[Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics)
 * 日漫光学字符识别模型：[kha-white/manga-ocr](https://github.com/kha-white/manga-ocr)
 * 标注数据集：Roboflow 公开漫画对话气泡检测数据集（`manga_det_dataset`）
+*

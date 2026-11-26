@@ -1,0 +1,160 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 13,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        526,
+        84,
+        626,
+        187
+      ],
+      "confidence": 0.9599,
+      "text": "どうかしましたか？",
+      "translation": "怎么了？"
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        261,
+        74,
+        364,
+        214
+      ],
+      "confidence": 0.9355,
+      "text": "あ‼ いやなんでも…‼",
+      "translation": "啊！！没、没什么……！！"
+    },
+    {
+      "reading_order": 3,
+      "bbox": [
+        148,
+        155,
+        253,
+        261
+      ],
+      "confidence": 0.9322,
+      "text": "なんですか〜なにか言いたけ",
+      "translation": "怎么了呀～你好像有什么话想说"
+    },
+    {
+      "reading_order": 4,
+      "bbox": [
+        28,
+        171,
+        103,
+        260
+      ],
+      "confidence": 0.9367,
+      "text": "ぇ！えっと……",
+      "translation": "诶！那个……"
+    },
+    {
+      "reading_order": 5,
+      "bbox": [
+        537,
+        266,
+        584,
+        319
+      ],
+      "confidence": 0.903,
+      "text": ""
+    },
+    {
+      "reading_order": 6,
+      "bbox": [
+        462,
+        274,
+        552,
+        388
+      ],
+      "confidence": 0.914,
+      "text": "なんで俺の家に来たのかなって、",
+      "translation": "我在想，你为什么来我家，"
+    },
+    {
+      "reading_order": 7,
+      "bbox": [
+        88,
+        273,
+        191,
+        380
+      ],
+      "confidence": 0.9516,
+      "text": "それはですね",
+      "translation": "这个嘛"
+    },
+    {
+      "reading_order": 8,
+      "bbox": [
+        481,
+        388,
+        629,
+        501
+      ],
+      "confidence": 0.9618,
+      "text": "一流の泥棒課題を出してなるためにもらって…義賊のお母さん」",
+      "translation": "为了成为一流的小偷，被布置了课题……义贼的妈妈"
+    },
+    {
+      "reading_order": 9,
+      "bbox": [
+        227,
+        389,
+        335,
+        499
+      ],
+      "confidence": 0.9375,
+      "text": "盗んでくる身近な悪人からようにって…",
+      "translation": "要从身边的恶人那里偷来……"
+    },
+    {
+      "reading_order": 10,
+      "bbox": [
+        28,
+        422,
+        101,
+        507
+      ],
+      "confidence": 0.9442,
+      "text": "ふーく」",
+      "translation": "呼——"
+    },
+    {
+      "reading_order": 11,
+      "bbox": [
+        336,
+        514,
+        438,
+        626
+      ],
+      "confidence": 0.9333,
+      "text": "義賊の",
+      "translation": "义贼的"
+    },
+    {
+      "reading_order": 12,
+      "bbox": [
+        241,
+        513,
+        320,
+        592
+      ],
+      "confidence": 0.9388,
+      "text": ""
+    },
+    {
+      "reading_order": 13,
+      "bbox": [
+        27,
+        508,
+        121,
+        596
+      ],
+      "confidence": 0.9035,
+      "text": "そう",
+      "translation": "是的"
+    }
+  ]
+}

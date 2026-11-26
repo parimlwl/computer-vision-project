@@ -1,0 +1,154 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 13,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        526,
+        84,
+        623,
+        187
+      ],
+      "confidence": 0.96,
+      "text": ""
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        262,
+        74,
+        363,
+        213
+      ],
+      "confidence": 0.9359,
+      "text": "なんでも",
+      "translation": "什么都……"
+    },
+    {
+      "reading_order": 3,
+      "bbox": [
+        150,
+        155,
+        246,
+        261
+      ],
+      "confidence": 0.9305,
+      "text": ""
+    },
+    {
+      "reading_order": 4,
+      "bbox": [
+        28,
+        171,
+        103,
+        260
+      ],
+      "confidence": 0.9428,
+      "text": ""
+    },
+    {
+      "reading_order": 5,
+      "bbox": [
+        537,
+        266,
+        584,
+        319
+      ],
+      "confidence": 0.904,
+      "text": ""
+    },
+    {
+      "reading_order": 6,
+      "bbox": [
+        462,
+        274,
+        563,
+        388
+      ],
+      "confidence": 0.9224,
+      "text": "・来たのがなーてなんで俺の恋の",
+      "translation": "来的是——为什么我的恋情……"
+    },
+    {
+      "reading_order": 7,
+      "bbox": [
+        88,
+        273,
+        191,
+        381
+      ],
+      "confidence": 0.9535,
+      "text": "それはですね",
+      "translation": "这个嘛……"
+    },
+    {
+      "reading_order": 8,
+      "bbox": [
+        481,
+        387,
+        629,
+        502
+      ],
+      "confidence": 0.9634,
+      "text": ""
+    },
+    {
+      "reading_order": 9,
+      "bbox": [
+        227,
+        388,
+        335,
+        500
+      ],
+      "confidence": 0.9416,
+      "text": ""
+    },
+    {
+      "reading_order": 10,
+      "bbox": [
+        29,
+        422,
+        101,
+        507
+      ],
+      "confidence": 0.9408,
+      "text": ""
+    },
+    {
+      "reading_order": 11,
+      "bbox": [
+        336,
+        514,
+        438,
+        628
+      ],
+      "confidence": 0.9187,
+      "text": "C",
+      "translation": "C"
+    },
+    {
+      "reading_order": 12,
+      "bbox": [
+        241,
+        513,
+        320,
+        592
+      ],
+      "confidence": 0.9422,
+      "text": ""
+    },
+    {
+      "reading_order": 13,
+      "bbox": [
+        28,
+        507,
+        118,
+        596
+      ],
+      "confidence": 0.9066,
+      "text": "そうです恐",
+      "translation": "是的，恐怕……"
+    }
+  ]
+}

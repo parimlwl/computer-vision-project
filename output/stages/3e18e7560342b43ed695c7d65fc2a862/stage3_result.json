@@ -1,0 +1,18 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 1,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        978,
+        732,
+        1121,
+        977
+      ],
+      "confidence": 0.8571,
+      "text": "ひ……",
+      "translation": "咿……"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "pipeline_mode": "proposed",
+  "total_bubbles": 8,
+  "bubbles": [
+    {
+      "reading_order": 1,
+      "bbox": [
+        472,
+        37,
+        554,
+        119
+      ],
+      "confidence": 0.93,
+      "text": "はいどうそ",
+      "translation": "来，请用。"
+    },
+    {
+      "reading_order": 2,
+      "bbox": [
+        233,
+        13,
+        282,
+        87
+      ],
+      "confidence": 0.9256,
+      "text": "お",
+      "translation": "噢。"
+    },
+    {
+      "reading_order": 3,
+      "bbox": [
+        146,
+        40,
+        253,
+        144
+      ],
+      "confidence": 0.9411,
+      "text": "これが夜長さんの部屋ですか！！",
+      "translation": "这就是夜长小姐的房间吗！！"
+    },
+    {
+      "reading_order": 4,
+      "bbox": [
+        57,
+        95,
+        147,
+        193
+      ],
+      "confidence": 0.9491,
+      "text": "俺の名前言ってるし…",
+      "translation": "她在念叨我的名字……"
+    },
+    {
+      "reading_order": 5,
+      "bbox": [
+        382,
+        265,
+        492,
+        382
+      ],
+      "confidence": 0.9456,
+      "text": "侵入れました-初めて人の家に",
+      "translation": "打扰了——第一次进别人家。"
+    },
+    {
+      "reading_order": 6,
+      "bbox": [
+        197,
+        227,
+        253,
+        372
+      ],
+      "confidence": 0.8985,
+      "text": "初めてなんだ…",
+      "translation": "原来是第一次啊……"
+    },
+    {
+      "reading_order": 7,
+      "bbox": [
+        28,
+        323,
+        108,
+        402
+      ],
+      "confidence": 0.95,
+      "text": "しかし…",
+      "translation": "不过……"
+    },
+    {
+      "reading_order": 8,
+      "bbox": [
+        356,
+        464,
+        467,
+        599
+      ],
+      "confidence": 0.9307,
+      "text": "全然違うなく…学校とは印象が",
+      "translation": "完全不一样……和学校里给人的印象。"
+    }
+  ]
+}

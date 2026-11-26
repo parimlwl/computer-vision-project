@@ -4522,7 +4522,7 @@ class MangaTranslator:
                 x2, y2 = int(pts[:, 0].max()), int(pts[:, 1].max())
                 raw_boxes.append({"bbox": [x1, y1, x2, y2], "conf": float(getattr(tl, "prob", 0.0))})
 
-            # 过滤高度重叠的重复框（解决 #5 与 #6 重叠问题）
+            # 过滤高度重叠的重复框
             raw_boxes.sort(key=lambda b: b["conf"], reverse=True)
             stage1_boxes = []
             for box in raw_boxes:
@@ -4561,20 +4561,23 @@ class MangaTranslator:
                 proc_crop = preprocess_bubble(raw_crop, enable=enable_preprocess, target_height=160)
                 crop_pairs.append((raw_crop, proc_crop))
 
-                # 在增强后的独立切片内部定位单行文字（解决多列竖排气泡直接送入48px OCR被压扁识别为空的问题）
                 ch, cw = proc_crop.shape[:2]
-                sub_lines, _, _ = await dispatch_detection(
-                    "default",
-                    proc_crop,
-                    max(256, max(ch, cw)),
-                    config.detector.text_threshold,
-                    config.detector.box_threshold,
-                    config.detector.unclip_ratio,
-                    self.device,
-                    False,
-                )
+                sub_lines = []
+                try:
+                    sub_lines, _, _ = await dispatch_detection(
+                        "default",
+                        proc_crop,
+                        max(256, max(ch, cw)),
+                        config.detector.text_threshold,
+                        config.detector.box_threshold,
+                        config.detector.unclip_ratio,
+                        self.device,
+                        False,
+                    )
+                except Exception as sub_det_err:
+                    logger.debug(f"[CDS540 Stage2] 切片子检测回退为整框: {sub_det_err}")
+
                 if not sub_lines:
-                    # 若切片内仅单行未触发子检测，自动按竖列或全框构造单行框
                     sub_lines = [
                         Quadrilateral(
                             np.array([[0, 0], [cw, 0], [cw, ch], [0, ch]], dtype=np.int32),
@@ -4583,7 +4586,7 @@ class MangaTranslator:
                         )
                     ]
                 else:
-                    # 日漫切片内多列文本按从右到左排序后再拼接
+                    # 日漫多列文本按从右到左排序后再识别拼接
                     sub_lines.sort(key=lambda q: -float(np.mean(np.asarray(q.pts)[:, 0])))
 
                 ocr_results = await dispatch_ocr(
@@ -4601,6 +4604,14 @@ class MangaTranslator:
                     "text": recognized_text,
                     "conf": box_info["conf"],
                 })
+
+            # 保存 Stage 2 预处理前后切片对比图
+            stage2_grid = build_stage2_comparison_grid(crop_pairs)
+            imwrite_unicode(
+                os.path.join(stage_dir, "stage2_preprocess_compare.png"),
+                cv2.cvtColor(stage2_grid, cv2.COLOR_RGB2BGR),
+                logger,
+            )
 
         # ================= STAGE 3: 阅读顺序组织 + 批量翻译 + JSON + 最终可视化 =================
         ordered_bubbles = sort_reading_order(raw_bubbles, direction=direction, img_h=img_h)
